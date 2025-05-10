@@ -18,10 +18,30 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
+# Set dark theme globally for general stylistic elements,
+# but we will explicitly set facecolors for figures/axes below
+sns.set_theme(style="dark", rc={
+    'axes.edgecolor': 'white',
+    'text.color': 'white',
+    'axes.labelcolor': 'white',
+    'xtick.color': 'white',
+    'ytick.color': 'white',
+    'grid.color': '#555555', # Keep original grid color preference
+    'legend.facecolor': '#1e1e1e',
+    'legend.edgecolor': '#555555',
+    'legend.fontsize': 10,
+    'legend.title_fontsize': 12,
+}, font_scale=1.0)
+
+# Define preferred facecolors
+FIG_FACECOLOR = '#2E2E2E'
+AXES_FACECOLOR = '#3C3C3C'
+TEXT_COLOR = 'white' # Based on the theme setting
+
 df = None
 ml_df = None
-cluster_summary_df = None # Store cluster summary for insights
-classification_results_df = None # Store classification results for insights
+cluster_summary_df = None
+classification_results_df = None
 
 def load_data():
     global df, ml_df, home_status_label, eda_button, cluster_button, classify_button, insights_button
@@ -108,72 +128,74 @@ def show_eda():
         df['InvoiceMonth'] = df['InvoiceDate'].dt.to_period('M')
 
         fig = plt.Figure(figsize=(14, 16), dpi=100)
-        plt.style.use('seaborn-v0_8-darkgrid')
-        fig.patch.set_facecolor('#2E2E2E')
+        fig.patch.set_facecolor(FIG_FACECOLOR) # Set figure facecolor
 
-        text_color = 'white'
-        grid_color = '#555555'
         title_fontsize = 14
         label_fontsize = 12
 
         ax1 = fig.add_subplot(411)
+        ax1.set_facecolor(AXES_FACECOLOR) # Set axes facecolor
         top_countries = df[df['Country'] != 'United Kingdom']['Country'].value_counts().nlargest(10)
         sns.barplot(x=top_countries.values, y=top_countries.index, palette='viridis', ax=ax1, hue=top_countries.index, dodge=False, legend=False)
-        ax1.set_title('Top 10 Non-UK Countries by Transactions', color=text_color, fontsize=title_fontsize)
-        ax1.set_xlabel('Number of Transactions', color=text_color, fontsize=label_fontsize)
-        ax1.set_ylabel('Country', color=text_color, fontsize=label_fontsize)
-        ax1.tick_params(axis='x', colors=text_color)
-        ax1.tick_params(axis='y', colors=text_color)
-        ax1.grid(True, linestyle='--', alpha=0.7, color=grid_color)
-        ax1.set_facecolor('#3C3C3C')
+        ax1.set_title('Top 10 Non-UK Countries by Transactions', color=TEXT_COLOR, fontsize=title_fontsize)
+        ax1.set_xlabel('Number of Transactions', color=TEXT_COLOR, fontsize=label_fontsize)
+        ax1.set_ylabel('Country', color=TEXT_COLOR, fontsize=label_fontsize)
+        ax1.tick_params(axis='x', colors=TEXT_COLOR)
+        ax1.tick_params(axis='y', colors=TEXT_COLOR)
+        # Grid color comes from sns.set_theme now
+        ax1.grid(True, linestyle='--', alpha=0.7)
+
 
         ax2 = fig.add_subplot(412)
+        ax2.set_facecolor(AXES_FACECOLOR) # Set axes facecolor
         monthly_sales = df.groupby(df['InvoiceDate'].dt.to_period('M'))['TotalPrice'].sum()
         monthly_sales.index = monthly_sales.index.to_timestamp()
         ax2.plot(monthly_sales.index, monthly_sales.values, marker='o', color='cyan', linewidth=2, markersize=5)
-        ax2.set_title('Monthly Sales Trend', color=text_color, fontsize=title_fontsize)
-        ax2.set_xlabel('Month', color=text_color, fontsize=label_fontsize)
-        ax2.set_ylabel('Total Sales (£)', color=text_color, fontsize=label_fontsize)
-        ax2.tick_params(axis='x', colors=text_color, rotation=45)
-        ax2.tick_params(axis='y', colors=text_color)
-        ax2.grid(True, linestyle='--', alpha=0.7, color=grid_color)
-        ax2.set_facecolor('#3C3C3C')
+        ax2.set_title('Monthly Sales Trend', color=TEXT_COLOR, fontsize=title_fontsize)
+        ax2.set_xlabel('Month', color=TEXT_COLOR, fontsize=label_fontsize)
+        ax2.set_ylabel('Total Sales (£)', color=TEXT_COLOR, fontsize=label_fontsize)
+        ax2.tick_params(axis='x', colors=TEXT_COLOR, rotation=45)
+        ax2.tick_params(axis='y', colors=TEXT_COLOR)
+        # Grid color comes from sns.set_theme now
+        ax2.grid(True, linestyle='--', alpha=0.7)
         fig.autofmt_xdate()
 
         ax3 = fig.add_subplot(413)
+        ax3.set_facecolor(AXES_FACECOLOR) # Set axes facecolor
         top_items = df.groupby('Description')['Quantity'].sum().nlargest(10)
         sns.barplot(x=top_items.values, y=top_items.index, palette='magma', ax=ax3, hue=top_items.index, dodge=False, legend=False)
-        ax3.set_title('Top 10 Products by Quantity Sold', color=text_color, fontsize=title_fontsize)
-        ax3.set_xlabel('Total Quantity Sold', color=text_color, fontsize=label_fontsize)
-        ax3.set_ylabel('Product Description', color=text_color, fontsize=label_fontsize)
-        ax3.tick_params(axis='x', colors=text_color)
-        ax3.tick_params(axis='y', colors=text_color)
-        ax3.grid(True, linestyle='--', alpha=0.7, color=grid_color)
-        ax3.set_facecolor('#3C3C3C')
+        ax3.set_title('Top 10 Products by Quantity Sold', color=TEXT_COLOR, fontsize=title_fontsize)
+        ax3.set_xlabel('Total Quantity Sold', color=TEXT_COLOR, fontsize=label_fontsize)
+        ax3.set_ylabel('Product Description', color=TEXT_COLOR, fontsize=label_fontsize)
+        ax3.tick_params(axis='x', colors=TEXT_COLOR)
+        ax3.tick_params(axis='y', colors=TEXT_COLOR)
+        # Grid color comes from sns.set_theme now
+        ax3.grid(True, linestyle='--', alpha=0.7)
 
         ax4 = fig.add_subplot(414)
+        ax4.set_facecolor(AXES_FACECOLOR) # Set axes facecolor
         plot_total_price = df['TotalPrice'][df['TotalPrice'] < df['TotalPrice'].quantile(0.99)]
         sns.histplot(plot_total_price, bins=50, color='lightgreen', kde=True, ax=ax4)
-        ax4.set_title('Transaction Amount Distribution (Up to 99th Percentile)', color=text_color, fontsize=title_fontsize)
-        ax4.set_xlabel('Total Price per Transaction (£)', color=text_color, fontsize=label_fontsize)
-        ax4.set_ylabel('Frequency', color=text_color, fontsize=label_fontsize)
-        ax4.tick_params(axis='x', colors=text_color)
-        ax4.tick_params(axis='y', colors=text_color)
-        ax4.grid(True, linestyle='--', alpha=0.7, color=grid_color)
-        ax4.set_facecolor('#3C3C3C')
+        ax4.set_title('Transaction Amount Distribution (Up to 99th Percentile)', color=TEXT_COLOR, fontsize=title_fontsize)
+        ax4.set_xlabel('Total Price per Transaction (£)', color=TEXT_COLOR, fontsize=label_fontsize)
+        ax4.set_ylabel('Frequency', color=TEXT_COLOR, fontsize=label_fontsize)
+        ax4.tick_params(axis='x', colors=TEXT_COLOR)
+        ax4.tick_params(axis='y', colors=TEXT_COLOR)
+        # Grid color comes from sns.set_theme now
+        ax4.grid(True, linestyle='--', alpha=0.7)
 
         fig.tight_layout(pad=4.0)
         canvas = FigureCanvasTkAgg(fig, master=eda_scrolled_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=(20, 5))
 
-        ttk.Label(eda_scrolled_frame, text="Insight 1: This plot shows the countries outside the UK with the most transactions, highlighting potential markets for international focus.", font=('Segoe UI', 9, 'italic'), bootstyle="secondary", wraplength=800).pack(pady=(0, 10), padx=10, anchor='w')
+        ttk.Label(eda_scrolled_frame, text="Insight 1: This plot shows the countries outside the UK with the most transactions, highlighting potential markets for international focus.", font=('Segoe UI', 9, 'italic'), bootstyle="light", wraplength=800).pack(pady=(0, 10), padx=10, anchor='w')
 
-        ttk.Label(eda_scrolled_frame, text="Insight 2: The monthly sales trend reveals seasonality and growth patterns over time, important for forecasting and campaign timing.", font=('Segoe UI', 9, 'italic'), bootstyle="secondary", wraplength=800).pack(pady=(0, 10), padx=10, anchor='w')
+        ttk.Label(eda_scrolled_frame, text="Insight 2: The monthly sales trend reveals seasonality and growth patterns over time, important for forecasting and campaign timing.", font=('Segoe UI', 9, 'italic'), bootstyle="light", wraplength=800).pack(pady=(0, 10), padx=10, anchor='w')
 
-        ttk.Label(eda_scrolled_frame, text="Insight 3: Identifying the top-selling products helps with inventory management, marketing promotions, and understanding customer demand.", font=('Segoe UI', 9, 'italic'), bootstyle="secondary", wraplength=800).pack(pady=(0, 10), padx=10, anchor='w')
+        ttk.Label(eda_scrolled_frame, text="Insight 3: Identifying the top-selling products helps with inventory management, marketing promotions, and understanding customer demand.", font=('Segoe UI', 9, 'italic'), bootstyle="light", wraplength=800).pack(pady=(0, 10), padx=10, anchor='w')
 
-        ttk.Label(eda_scrolled_frame, text="Insight 4: The distribution of transaction amounts shows that most orders are of lower value, with a few high-value transactions (outliers removed for clarity). This is crucial for pricing and sales strategies.", font=('Segoe UI', 9, 'italic'), bootstyle="secondary", wraplength=800).pack(pady=(0, 20), padx=10, anchor='w')
+        ttk.Label(eda_scrolled_frame, text="Insight 4: The distribution of transaction amounts shows that most orders are of lower value, with a few high-value transactions (outliers removed for clarity). This is crucial for pricing and sales strategies.", font=('Segoe UI', 9, 'italic'), bootstyle="light", wraplength=800).pack(pady=(0, 20), padx=10, anchor='w')
 
 
     except Exception as e:
@@ -206,24 +228,22 @@ def run_clustering():
         ml_df['PCA2'] = reduced_data[:, 1]
 
         fig = plt.Figure(figsize=(10, 7), dpi=100)
-        fig.patch.set_facecolor('#2E2E2E')
-        text_color = 'white'
-        grid_color = '#555555'
+        fig.patch.set_facecolor(FIG_FACECOLOR) # Set figure facecolor
 
         ax = fig.add_subplot(111)
+        ax.set_facecolor(AXES_FACECOLOR) # Set axes facecolor
         scatter = sns.scatterplot(data=ml_df, x='PCA1', y='PCA2', hue='Cluster', palette='viridis', s=70, alpha=0.8, ax=ax, legend='full')
-        ax.set_title(f'Customer Segments (k={num_clusters}) via PCA', color=text_color, fontsize=15)
-        ax.set_xlabel('PCA Component 1', color=text_color, fontsize=12)
-        ax.set_ylabel('PCA Component 2', color=text_color, fontsize=12)
-        ax.tick_params(axis='x', colors=text_color)
-        ax.tick_params(axis='y', colors=text_color)
-        ax.grid(True, linestyle='--', alpha=0.5, color=grid_color)
-        ax.set_facecolor('#3C3C3C')
+        ax.set_title(f'Customer Segments (k={num_clusters}) via PCA', color=TEXT_COLOR, fontsize=15)
+        ax.set_xlabel('PCA Component 1', color=TEXT_COLOR, fontsize=12)
+        ax.set_ylabel('PCA Component 2', color=TEXT_COLOR, fontsize=12)
+        ax.tick_params(axis='x', colors=TEXT_COLOR)
+        ax.tick_params(axis='y', colors=TEXT_COLOR)
+        # Grid color comes from sns.set_theme now
+        ax.grid(True, linestyle='--', alpha=0.5)
         legend = ax.legend(title='Cluster', frameon=True)
-        plt.setp(legend.get_texts(), color=text_color)
-        plt.setp(legend.get_title(), color=text_color)
-        legend.get_frame().set_facecolor('#3C3C3C')
-        legend.get_frame().set_edgecolor(grid_color)
+        # Legend colors should now be handled by sns.set_theme and explicit facecolor if needed
+        # legend.get_frame().set_facecolor('#3C3C3C') # Already set by AXES_FACECOLOR if legend is within axes bounds? Let's rely on sns theme for legend box colors.
+
 
         canvas = FigureCanvasTkAgg(fig, master=cluster_frame)
         canvas.draw()
@@ -246,7 +266,7 @@ def run_clustering():
             tree.insert("", "end", values=list(row))
         tree.pack(pady=5, padx=10, fill=tk.X)
 
-        ttk.Label(cluster_frame, text="Insight: The PCA plot visualizes the customer clusters based on their spending behavior (Frequency, Avg Quantity, Total Spend). Analyze the mean values in the table above to understand the typical profile of customers in each cluster.", font=('Segoe UI', 9, 'italic'), bootstyle="secondary", wraplength=800).pack(pady=(0, 20), padx=10, anchor='w')
+        ttk.Label(cluster_frame, text="Insight: The PCA plot visualizes the customer clusters based on their spending behavior (Frequency, Avg Quantity, Total Spend). Analyze the mean values in the table above to understand the typical profile of customers in each cluster.", font=('Segoe UI', 9, 'italic'), bootstyle="light", wraplength=800).pack(pady=(0, 20), padx=10, anchor='w')
 
 
     except Exception as e:
@@ -299,7 +319,7 @@ def run_classification():
 
         classification_results_df = pd.DataFrame(results_list)
 
-        ttk.Label(classify_frame, text="Classification Model Performance:", font=('Segoe UI', 14, 'bold'), bootstyle="primary").pack(pady=(10,5), padx=10, anchor='w')
+        ttk.Label(classify_frame, text="Classification Model Performance Metrics:", font=('Segoe UI', 14, 'bold'), bootstyle="primary").pack(pady=(10,5), padx=10, anchor='w')
 
         cols = list(classification_results_df.columns)
         tree = ttk.Treeview(classify_frame, columns=cols, show='headings', height=len(classification_results_df)+1, bootstyle="info")
@@ -311,21 +331,53 @@ def run_classification():
             tree.insert("", "end", values=[f"{val:.3f}" if isinstance(val, float) else val for val in row])
         tree.pack(expand=False, fill='x', padx=10, pady=10)
 
+        ttk.Label(classify_frame, text="Insight: This table shows key performance metrics for each classification model.", font=('Segoe UI', 9, 'italic'), bootstyle="light", wraplength=800).pack(pady=(0, 10), padx=10, anchor='w')
+
+        # --- Add the Classification Metrics Plot ---
+        ttk.Label(classify_frame, text="Model Performance Comparison:", font=('Segoe UI', 14, 'bold'), bootstyle="primary").pack(pady=(10,5), padx=10, anchor='w')
+
+        fig_metrics = plt.Figure(figsize=(12, 6), dpi=100)
+        fig_metrics.patch.set_facecolor(FIG_FACECOLOR) # Set figure facecolor
+        ax_metrics = fig_metrics.add_subplot(111)
+        ax_metrics.set_facecolor(AXES_FACECOLOR) # Set axes facecolor
+
+
+        melted = classification_results_df.melt(id_vars='Model', var_name='Metric', value_name='Score')
+
+        sns.barplot(x='Model', y='Score', hue='Metric', data=melted, palette='crest', ax=ax_metrics)
+
+        ax_metrics.set_title('Model Comparison by Performance Metric', color=TEXT_COLOR, fontsize=14)
+        ax_metrics.set_ylabel('Score', color=TEXT_COLOR)
+        ax_metrics.set_xlabel('Model', color=TEXT_COLOR) # Added x-axis label
+        ax_metrics.set_ylim(0, 1.05)
+        # Grid color comes from sns.set_theme now
+        ax_metrics.grid(True, linestyle='--', alpha=0.4)
+        ax_metrics.tick_params(axis='x', colors=TEXT_COLOR)
+        ax_metrics.tick_params(axis='y', colors=TEXT_COLOR)
+        ax_metrics.legend(title='Metric') # Ensure legend is added
+
+
+        fig_metrics.tight_layout(pad=2.0)
+
+        canvas_metrics = FigureCanvasTkAgg(fig_metrics, master=classify_frame)
+        canvas_metrics.draw()
+        canvas_metrics.get_tk_widget().pack(expand=True, fill='both', padx=10, pady=10)
+
         best_model = classification_results_df.loc[classification_results_df['Accuracy'].idxmax()]
-        summary_text = f"Insight: This table compares the performance of different classification models in identifying 'High Spenders'. Analyze metrics like Accuracy and F1 Score (useful for imbalanced data) to choose the most suitable model for your business needs. The model with the highest Accuracy is {best_model['Model']} ({best_model['Accuracy']:.3f})."
+        plot_insight_text = f"Insight: This graph visually compares the Accuracy, Precision, Recall, and F1 Score across the different classification models. The model with the highest Accuracy is {best_model['Model']} ({best_model['Accuracy']:.3f}). Use this visual and the table above to assess which model best meets your specific goals (e.g., prioritizing high recall to find as many high spenders as possible)."
+        ttk.Label(classify_frame, text=plot_insight_text, font=('Segoe UI', 9, 'italic'), bootstyle="light", wraplength=800).pack(pady=(0, 20), padx=10, anchor='w')
+        # --- End of Plot ---
 
-        ttk.Label(classify_frame, text=summary_text, font=('Segoe UI', 9, 'italic'), bootstyle="secondary", wraplength=800).pack(pady=(0, 20), padx=10, anchor='w')
-
-        insights_button.config(state="normal") # Enable insights after classification
+        insights_button.config(state="normal")
 
     except Exception as e:
         messagebox.showerror("Classification Error", f"An error occurred during classification: {str(e)}")
         ttk.Label(classify_frame, text=f"Error running classification: {str(e)}", bootstyle="danger").pack(pady=20, padx=10)
         insights_button.config(state="disabled")
 
-def add_insight_point(parent_frame, text, indent=10, bullet="• "):
-    """Helper function to add a bullet point label."""
-    ttk.Label(parent_frame, text=f"{bullet}{text}", font=('Segoe UI', 10), bootstyle="secondary", wraplength=800, justify=tk.LEFT).pack(pady=(2, 2), padx=(10 + indent, 10), anchor='w')
+def add_insight_point(parent_frame, text, indent=20, bullet="• ", bootstyle="light"):
+    """Helper function to add a bullet point label with light bootstyle."""
+    ttk.Label(parent_frame, text=f"{bullet}{text}", font=('Segoe UI', 10), bootstyle=bootstyle, wraplength=800, justify=tk.LEFT).pack(pady=(2, 2), padx=(10 + indent, 10), anchor='w')
 
 
 def generate_insights():
@@ -343,9 +395,9 @@ def generate_insights():
         # --- EDA Insights Summary ---
         ttk.Label(insights_scrolled_frame, text="1. Key Findings from Exploratory Data Analysis (EDA)", font=('Segoe UI', 12, 'bold'), bootstyle="primary").pack(pady=(10, 5), padx=10, anchor='w')
 
-        # Example dynamic text - replace with actual findings based on df content if possible
-        top_countries_list = df[df['Country'] != 'United Kingdom']['Country'].value_counts().nlargest(3).index.tolist()
-        top_product_desc = df.groupby('Description')['Quantity'].sum().nlargest(1).index[0]
+        top_countries_list = df[df['Country'] != 'United Kingdom']['Country'].value_counts().nlargest(3).index.tolist() if df is not None else ["loading..."]
+        top_product_desc = df.groupby('Description')['Quantity'].sum().nlargest(1).index[0] if df is not None and not df.empty else "loading..."
+
 
         add_insight_point(insights_scrolled_frame, f"Top Non-UK Markets: Analysis shows that countries like {', '.join(top_countries_list)} are the leading international markets by transaction volume. This highlights potential markets for focused international strategies.")
         add_insight_point(insights_scrolled_frame, "Sales Trend: The data reveals a clear seasonal pattern in sales, often peaking towards the end of the year. Understanding this trend is vital for optimizing inventory, staffing, and marketing campaign timing.")
@@ -355,17 +407,17 @@ def generate_insights():
 
         # --- Clustering Insights Summary ---
         ttk.Label(insights_scrolled_frame, text="2. Customer Segmentation Insights (Clustering)", font=('Segoe UI', 12, 'bold'), bootstyle="primary").pack(pady=(15, 5), padx=10, anchor='w')
-        ttk.Label(insights_scrolled_frame, text=f"Based on K-Means clustering with k={int(cluster_k_var.get())}, customers have been grouped into distinct segments based on their Total Spend, Frequency, and Average Quantity per transaction. Review the table on the 'Customer Clustering' tab to understand each segment's unique profile and size.", font=('Segoe UI', 10), bootstyle="secondary", wraplength=800, justify=tk.LEFT).pack(pady=(0, 5), padx=10, anchor='w')
+        ttk.Label(insights_scrolled_frame, text=f"Based on K-Means clustering with k={int(cluster_k_var.get())}, customers have been grouped into distinct segments based on their Total Spend, Frequency, and Average Quantity per transaction. Review the table and plot on the 'Customer Clustering' tab to understand each segment's unique profile and size.", font=('Segoe UI', 10), bootstyle="light", wraplength=800, justify=tk.LEFT).pack(pady=(0, 5), padx=10, anchor='w')
 
-        ttk.Label(insights_scrolled_frame, text="Common segments often found include:", font=('Segoe UI', 10, 'italic'), bootstyle="secondary").pack(pady=(5, 2), padx=10, anchor='w')
+        ttk.Label(insights_scrolled_frame, text="Common segments often found include:", font=('Segoe UI', 10, 'italic'), bootstyle="light").pack(pady=(5, 2), padx=10, anchor='w')
 
-        add_insight_point(insights_scrolled_frame, 'High Value Loyalists (High Spend, High Frequency)', indent=20)
-        add_insight_point(insights_scrolled_frame, 'Potential Loyalists (Moderate Spend & Frequency)', indent=20)
-        add_insight_point(insights_scrolled_frame, 'New Customers (Low Spend & Frequency)', indent=20)
-        add_insight_point(insights_scrolled_frame, 'Big Spenders (High Spend, Low Frequency)', indent=20)
-        add_insight_point(insights_scrolled_frame, 'Low Value / Churn Risk (Low Spend & Frequency)', indent=20)
+        add_insight_point(insights_scrolled_frame, 'High Value Loyalists (Typically high spend, high frequency)', indent=20)
+        add_insight_point(insights_scrolled_frame, 'Potential Loyalists (Often moderate spend and frequency, potential for growth)', indent=20)
+        add_insight_point(insights_scrolled_frame, 'New Customers (Recently acquired, lower initial metrics)', indent=20)
+        add_insight_point(insights_scrolled_frame, 'Big Spenders (High total spend but perhaps lower frequency)', indent=20)
+        add_insight_point(insights_scrolled_frame, 'Low Value / Churn Risk (Low spend and frequency)', indent=20)
 
-        ttk.Label(insights_scrolled_frame, text="Tailor your marketing, product recommendations, and customer service efforts based on the characteristics of each identified cluster.", font=('Segoe UI', 10), bootstyle="secondary", wraplength=800, justify=tk.LEFT).pack(pady=(5, 10), padx=10, anchor='w')
+        ttk.Label(insights_scrolled_frame, text="Tailor your marketing, product recommendations, and customer service efforts based on the characteristics of each identified cluster to improve engagement and loyalty.", font=('Segoe UI', 10), bootstyle="light", wraplength=800, justify=tk.LEFT).pack(pady=(5, 10), padx=10, anchor='w')
 
 
         # --- Classification Insights Summary ---
@@ -373,22 +425,23 @@ def generate_insights():
 
         if classification_results_df is not None and not classification_results_df.empty:
             best_model = classification_results_df.loc[classification_results_df['Accuracy'].idxmax()]
-            add_insight_point(insights_scrolled_frame, f"Best Performing Model: Based on Accuracy, the '{best_model['Model']}' model achieved the highest score of {best_model['Accuracy']:.3f}. Consider other metrics like F1 Score, Precision, and Recall (available on the 'High Spender Classification' tab) for a complete evaluation, especially if 'High Spender' is a smaller group.")
-            add_insight_point(insights_scrolled_frame, "Key Predictors: The models utilize features such as Total Spend, Frequency, and Average Quantity to predict high spenders. Customers exhibiting higher values in these areas are more likely to be identified.")
-            add_insight_point(insights_scrolled_frame, "Application: The chosen model can be used to proactively identify potential high-value customers for targeted marketing or loyalty programs.")
+            add_insight_point(insights_scrolled_frame, f"Best Performing Model: Based on Accuracy, the '{best_model['Model']}' model achieved the highest score of {best_model['Accuracy']:.3f}. Consider other metrics (F1 Score, Precision, Recall) and the performance comparison plot on the 'High Spender Classification' tab for a complete evaluation.")
+            add_insight_point(insights_scrolled_frame, "Key Predictors: Features like Total Spend, Frequency, and Average Quantity are the primary indicators used by the models to predict high spenders.")
+            add_insight_point(insights_scrolled_frame, "Application: The selected model provides a data-driven way to proactively identify customers likely to be high spenders, enabling targeted high-value customer strategies.")
         else:
-             ttk.Label(insights_scrolled_frame, text="Classification results are not available.", font=('Segoe UI', 10), bootstyle="secondary", wraplength=800, justify=tk.LEFT).pack(pady=(0, 10), padx=10, anchor='w')
+             ttk.Label(insights_scrolled_frame, text="Classification results are not available.", font=('Segoe UI', 10), bootstyle="light", wraplength=800, justify=tk.LEFT).pack(pady=(0, 10), padx=10, anchor='w')
 
 
         # --- Business Recommendations ---
         ttk.Label(insights_scrolled_frame, text="4. Business Recommendations", font=('Segoe UI', 14, 'bold'), bootstyle="success").pack(pady=(15, 5), padx=10, anchor='w')
 
-        add_insight_point(insights_scrolled_frame, "Targeting: Use the customer segments from clustering to develop personalized marketing campaigns, promotions, and product recommendations for each group.")
-        add_insight_point(insights_scrolled_frame, "High Spender Identification: Implement the best classification model to identify and nurture potential or existing high spenders through exclusive offers or loyalty programs.")
-        add_insight_point(insights_scrolled_frame, f"International Growth: Develop targeted strategies for top non-UK markets like {', '.join(top_countries_list)} based on their specific preferences and transaction patterns.")
-        add_insight_point(insights_scrolled_frame, f"Inventory & Promotion: Ensure robust stock of high-demand items like \"{top_product_desc}\" and strategically feature them in cross-selling or up-selling efforts.")
-        add_insight_point(insights_scrolled_frame, "Seasonal Planning: Align marketing spend, inventory buildup, and staffing with the identified peak sales periods to maximize revenue opportunities.")
-        add_insight_point(insights_scrolled_frame, "Average Transaction Value: Introduce initiatives such as minimum purchase discounts, product bundling, or personalized recommendations for complementary items to encourage larger orders.")
+        add_insight_point(insights_scrolled_frame, "Targeting: Implement segmented marketing campaigns based on the customer clusters identified, personalizing offers and communications.")
+        add_insight_point(insights_scrolled_frame, "High Spender Strategy: Utilize the classification model to identify potential and existing high spenders for exclusive loyalty programs, early access to products, or premium support.")
+        add_insight_point(insights_scrolled_frame, f"International Expansion: Invest strategically in top non-UK markets ({', '.join(top_countries_list)}) by localizing offerings and marketing efforts.")
+        add_insight_point(insights_scrolled_frame, f"Inventory & Promotion: Ensure consistent availability of top-selling products like \"{top_product_desc}\". Create product bundles or suggest complementary items during checkout to increase basket size.")
+        add_insight_point(insights_scrolled_frame, "Seasonal Readiness: Use the historical sales trends to forecast demand, optimize inventory, and plan staffing levels for peak seasons.")
+        add_insight_point(insights_scrolled_frame, "Average Transaction Value Growth: Introduce initiatives such as tiered discounts, free shipping thresholds, or personalized product recommendations for complementary items to encourage larger orders.")
+
 
     except Exception as e:
         messagebox.showerror("Insights Error", f"An error occurred while generating insights: {str(e)}")
