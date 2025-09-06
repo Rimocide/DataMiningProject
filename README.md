@@ -1,2 +1,2 @@
 # DataMiningProject
-A lengthy project applying several Data Science techniqueable with a GUI once implemented.s to the Online Retail Dataset from Kaggle and providing insights. Interact
+A lengthy project applying several Data Science techniques to the Kaggle Online Retail Store dataset. Also comes with a GUI!
